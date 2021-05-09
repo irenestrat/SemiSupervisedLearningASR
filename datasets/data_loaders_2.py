@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 class TimitDataset(Dataset):
     """Timit dataset."""
 
-    def __init__(self, csv_file, root_dir, transform=None):
+    def __init__(self, csv_file, root_dir, corpus, transform=None, transcription=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -30,6 +30,9 @@ class TimitDataset(Dataset):
 
         self.root_dir = root_dir
         self.transform = transform
+        self.transcription = transcription
+
+        self.corpus = corpus
 
         self.use_cache = False
         self.cache = {}
@@ -61,4 +64,11 @@ class TimitDataset(Dataset):
         if self.transform:
             sample = self.transform(sample, sample_rate)
 
+        if self.transcription:
+            phonemes_per_frame = self.transcription(sample)
+            sample['phonemes_per_frame'] = phonemes_per_frame
+
         return sample
+
+    def __getsize__(self):
+        return pb

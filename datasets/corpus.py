@@ -105,6 +105,10 @@ class Corpus:
             stops = stops / Fs            
             
         return starts, stops, phones
+
+    def get_silence(self):
+        "get_silence() - Return label for silence/noise"
+        return self.silence 
     
     def get_audiofilename(self, audio_dir, utterance):
         """get_audiofilename(utterance)
@@ -224,7 +228,7 @@ class Corpus:
     def categorical(y, num_classes):
         """ 1-hot encodes a tensor """
         return np.eye(num_classes, dtype='uint8')[y]
-    
+
     @classmethod
     def phones_to_onehot(cls, phones):
         """"phones_to_onehot(phones)
