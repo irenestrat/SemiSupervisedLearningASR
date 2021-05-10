@@ -106,6 +106,7 @@ class Phonemes(object):
             if(len(phonemes_current_frame) == 0 and i > 0):
                 # the phoneme starts in a previous and ends in a next frame
                 phonemes_per_frame[i] = copy.deepcopy(phonemes_per_frame[i-1])
+                phonemes_per_frame[i] = [phonemes_per_frame[i][len(phonemes_per_frame[i]) - 1][0:3]]
 
             elif(len(phonemes_current_frame) == 2):
                 # we have exactly 2 phonemes uttered in the frame
@@ -140,8 +141,6 @@ class Phonemes(object):
                 percentage_phoneme_last = (frame_end - phoneme_last_start)/frame_duration
                 phonemes_per_frame[i][0].append(percentage_phoneme_first)
                 phonemes_per_frame[i][phonemes_in_frame - 1].append(percentage_phoneme_last)
-                
-                summation = percentage_phoneme_first + percentage_phoneme_last
 
                 for j in range(1, phonemes_in_frame - 1):
                     phoneme_middle = phonemes_per_frame[i][j]
@@ -150,13 +149,6 @@ class Phonemes(object):
 
                     percentage_phoneme_middle = (phoneme_middle_end - phoneme_middle_start)/frame_duration
                     phonemes_per_frame[i][j].append(percentage_phoneme_middle)
-                    
-                    summation += percentage_phoneme_middle
-                
-                if(summation != 1):
-                    print(summation)
-                elif(summation == 1):
-                    print("ok")
 
         return phonemes_per_frame
         
