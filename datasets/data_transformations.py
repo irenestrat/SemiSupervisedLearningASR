@@ -102,13 +102,15 @@ class Phonemes(object):
 
         for i in range(0, len(frames_start)):
             phonemes_current_frame = phonemes_per_frame[i]
-
+            
             if(len(phonemes_current_frame) == 0 and i > 0):
                 # the phoneme starts in a previous and ends in a next frame
                 phonemes_per_frame[i] = copy.deepcopy(phonemes_per_frame[i-1])
                 phonemes_per_frame[i] = [phonemes_per_frame[i][len(phonemes_per_frame[i]) - 1][0:3]]
-
-            elif(len(phonemes_current_frame) == 2):
+                
+        for i in range(0, len(frames_start)):
+            phonemes_current_frame = phonemes_per_frame[i]
+            if(len(phonemes_current_frame) == 2):
                 # we have exactly 2 phonemes uttered in the frame
                 phoneme1 = phonemes_per_frame[i][0]
                 phoneme2 = phonemes_per_frame[i][1]
@@ -119,9 +121,12 @@ class Phonemes(object):
 
                 phoneme1_end = self.samples_to_ms(phoneme1[1])
                 phoneme2_start = self.samples_to_ms(phoneme2[0])
-
                 percentage_phoneme1 = (phoneme1_end - frame_start)/frame_duration
                 percentage_phoneme2 = (frame_end - phoneme2_start)/frame_duration
+                
+                phonemes_per_frame[i][0] = copy.deepcopy(phonemes_per_frame[i][0])
+                phonemes_per_frame[i][1] = copy.deepcopy(phonemes_per_frame[i][1])
+                
                 phonemes_per_frame[i][0].append(percentage_phoneme1)
                 phonemes_per_frame[i][1].append(percentage_phoneme2)
 
@@ -139,6 +144,10 @@ class Phonemes(object):
                 phoneme_last_start = self.samples_to_ms(phoneme_last[0])
                 percentage_phoneme_first = (phoneme_first_end - frame_start)/frame_duration
                 percentage_phoneme_last = (frame_end - phoneme_last_start)/frame_duration
+                
+                phonemes_per_frame[i][0] = copy.deepcopy(phonemes_per_frame[i][0])
+                phonemes_per_frame[i][phonemes_in_frame - 1] = copy.deepcopy(phonemes_per_frame[i][phonemes_in_frame - 1])
+                
                 phonemes_per_frame[i][0].append(percentage_phoneme_first)
                 phonemes_per_frame[i][phonemes_in_frame - 1].append(percentage_phoneme_last)
 
@@ -146,8 +155,10 @@ class Phonemes(object):
                     phoneme_middle = phonemes_per_frame[i][j]
                     phoneme_middle_start = self.samples_to_ms(phoneme_middle[0])
                     phoneme_middle_end = self.samples_to_ms(phoneme_middle[1])
-
                     percentage_phoneme_middle = (phoneme_middle_end - phoneme_middle_start)/frame_duration
+                    
+                    phonemes_per_frame[i][j] = copy.deepcopy(phonemes_per_frame[i][j])
+                    
                     phonemes_per_frame[i][j].append(percentage_phoneme_middle)
 
         return phonemes_per_frame
