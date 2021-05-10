@@ -37,7 +37,7 @@ class MFCC(object):
         audio = torch.tensor(audio, dtype=torch.float) 
         audio = torchaudio.compliance.kaldi.mfcc(audio, **params)
 
-        print("AU1", audio.shape[0])
+       # print("AU1", audio.shape[0])
 
         return {'audio': audio, 'phonemes': phonemes}
 
@@ -72,7 +72,7 @@ class Phonemes(object):
             current_time += frame_shift
         frames_end[len(frames_end) - 1] = end_time
 
-        print("FRA", len(frames_end))
+       # print("FRA", len(frames_end))
 
         phonemes_per_frame = []
 
@@ -100,10 +100,10 @@ class Phonemes(object):
             # Patching silence in the first frame if it's initially empty
             phonemes_per_frame[0].append([0, 0, 'h#'])
 
-        for i in range(1, len(frames_start)):
+        for i in range(0, len(frames_start)):
             phonemes_current_frame = phonemes_per_frame[i]
 
-            if(len(phonemes_current_frame) == 0):
+            if(len(phonemes_current_frame) == 0 and i > 0):
                 # the phoneme starts in a previous and ends in a next frame
                 phonemes_per_frame[i] = copy.deepcopy(phonemes_per_frame[i-1])
 
@@ -140,14 +140,23 @@ class Phonemes(object):
                 percentage_phoneme_last = (frame_end - phoneme_last_start)/frame_duration
                 phonemes_per_frame[i][0].append(percentage_phoneme_first)
                 phonemes_per_frame[i][phonemes_in_frame - 1].append(percentage_phoneme_last)
+                
+                summation = percentage_phoneme_first + percentage_phoneme_last
 
-                for j in range(1, phonemes_in_frame - 2):
+                for j in range(1, phonemes_in_frame - 1):
                     phoneme_middle = phonemes_per_frame[i][j]
                     phoneme_middle_start = self.samples_to_ms(phoneme_middle[0])
                     phoneme_middle_end = self.samples_to_ms(phoneme_middle[1])
 
                     percentage_phoneme_middle = (phoneme_middle_end - phoneme_middle_start)/frame_duration
                     phonemes_per_frame[i][j].append(percentage_phoneme_middle)
+                    
+                    summation += percentage_phoneme_middle
+                
+                if(summation != 1):
+                    print(summation)
+                elif(summation == 1):
+                    print("ok")
 
         return phonemes_per_frame
         
