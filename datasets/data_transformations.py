@@ -30,13 +30,14 @@ class MFCC(object):
             "round_to_power_of_two": False,
             "sample_frequency": sample_rate,
             "preemphasis_coefficient": self.preemphasis_coefficient,
-            "num_ceps": self.num_ceps
+            "num_ceps": self.num_ceps,
+            "snip_edges": False
         }
 
-        audio = torch.tensor(audio, dtype=torch.float)
+        audio = torch.tensor(audio, dtype=torch.float) 
         audio = torchaudio.compliance.kaldi.mfcc(audio, **params)
 
-        # print("AU1", audio.shape[0])
+        print("AU1", audio.shape[0])
 
         return {'audio': audio, 'phonemes': phonemes}
 
@@ -71,7 +72,7 @@ class Phonemes(object):
             current_time += frame_shift
         frames_end[len(frames_end) - 1] = end_time
 
-        # print("FRA", len(frames_end))
+        print("FRA", len(frames_end))
 
         phonemes_per_frame = []
 
