@@ -32,7 +32,18 @@ def main(argv):
     targets = len(phonemes)  # Number of categories
 
     # Load the TIMIT dataset
-    dataset = TimitDataset(csv_file = 'test_data.csv',
+    dataset = TimitDataset(csv_file = 'train_data.csv',
+                           root_dir = dataset_dir,
+                           corpus = corpus,
+                           transform = MFCC(n_fft=FLAGS.n_fft,
+                                          preemphasis_coefficient=FLAGS.preemphasis_coefficient,
+                                          num_ceps=FLAGS.num_ceps),
+                           transcription = Phonemes(n_fft=FLAGS.n_fft,
+                                           preemphasis_coefficient=FLAGS.preemphasis_coefficient,
+                                           num_ceps=FLAGS.num_ceps,
+                                           corpus = corpus))
+    
+    test_dataset = TimitDataset(csv_file = 'test_data.csv',
                            root_dir = dataset_dir,
                            corpus = corpus,
                            transform = MFCC(n_fft=FLAGS.n_fft,
@@ -44,12 +55,15 @@ def main(argv):
                                            corpus = corpus))
 
     # Get the MFCC coefficients
-    train_data, max_len = getMFCCFeatures(dataset, zeropad = True)
+    train_data, max_len = getMFCCFeatures(test_dataset, oneTensor = True)
+    print(train_data.shape)
     
     # Get the phonemes per frame (as percentages)
-    train_targets = getTargetPhonemes(dataset, max_len, corpus, zeropad = True, mode = "percentages")
+    train_targets = getTargetPhonemes(test_dataset, max_len, corpus, oneTensor = True, mode = "percentages")
+    print(train_targets.shape)
     
-def getMFCCFeatures(dataset, zeropad = False):
+    
+def getMFCCFeatures(dataset, zeropad = False, oneTensor = False):
     """ This method computes the MFCC coefficients per frame.
          When frames are less than the maximum amount does zero-padding.
          @returns tensors of MFCC coefficients of the same length
@@ -74,10 +88,16 @@ def getMFCCFeatures(dataset, zeropad = False):
             audio_new = np.zeros((max_frames, features[i].shape[1]))
             audio_new[0:features[i].shape[0],:] = features[i]
             tensors.append(torch.tensor(audio_new.tolist(), dtype=torch.long))
+    
+    if(oneTensor == True):
+        whole = tensors[0].numpy()
+        for i in range(1, len(dataset)):
+            whole = np.concatenate((whole, tensors[i].numpy()), axis = 0)
+        tensors = torch.tensor(whole.tolist(), dtype = torch.long)
 
     return tensors, max_frames
 
-def getTargetPhonemes(dataset, max_frames, corpus, zeropad = False, mode = "indices"):
+def getTargetPhonemes(dataset, max_frames, corpus, zeropad = False, oneTensor = False, mode = "indices"):
     """ This method computes the target phonemes as percentages per frame.
          @returns tensors of phonemes per frame
     """
@@ -132,6 +152,12 @@ def getTargetPhonemes(dataset, max_frames, corpus, zeropad = False, mode = "indi
                     sample_targets.append(silence_id)
                 
         tensors.append(torch.tensor(sample_targets, dtype=torch.long))
+        
+    if(oneTensor == True):
+        whole = tensors[0].numpy()
+        for i in range(1, len(dataset)):
+            whole = np.concatenate((whole, tensors[i].numpy()), axis = 0)
+        tensors = torch.tensor(whole.tolist(), dtype = torch.long)
 
     return tensors
 
