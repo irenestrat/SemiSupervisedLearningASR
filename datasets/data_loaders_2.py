@@ -59,14 +59,19 @@ class TimitDataset(Dataset):
 
         phonemes = list(phonemes)
 
-        sample = {'audio': audio, 'phonemes':  phonemes}
+        sample = {'audio': audio, 'phonemes':  phonemes, 'max_frames': 0}
 
         if self.transform:
             sample = self.transform(sample, sample_rate)
 
         if self.transcription:
             phonemes_per_frame = self.transcription(sample)
-            sample['phonemes_per_frame'] = phonemes_per_frame
+            sample['phonemes_per_frame'], max_len = phonemes_per_frame
+            
+            if(max_len < sample['max_frames']):
+                sample_audio = sample['audio'].numpy()
+                sample_audio = sample_audio[0:max_len,:]
+                sample['audio'] = torch.tensor(sample_audio, dtype=torch.float)
 
         return sample
 

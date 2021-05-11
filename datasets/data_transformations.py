@@ -39,7 +39,7 @@ class MFCC(object):
 
        # print("AU1", audio.shape[0])
 
-        return {'audio': audio, 'phonemes': phonemes}
+        return {'audio': audio, 'phonemes': phonemes, 'max_frames': audio.shape[0]}
 
 
 class Phonemes(object):
@@ -47,6 +47,7 @@ class Phonemes(object):
     def __init__(self, n_fft, preemphasis_coefficient, num_ceps, corpus):
         self.n_fft = n_fft
         self.preemphasis_coefficient = preemphasis_coefficient
+        
         self.num_ceps = num_ceps
         self.corpus = corpus
         
@@ -55,7 +56,7 @@ class Phonemes(object):
         return ms_equivalent
     
     def __call__(self, sample):
-        audio, phonemes = sample['audio'], sample['phonemes']
+        audio, phonemes, max_frames = sample['audio'], sample['phonemes'], sample['max_frames']
         frames_start = []
         frames_end = []
 
@@ -66,7 +67,7 @@ class Phonemes(object):
         end_time = self.samples_to_ms(phonemes[len(phonemes)-1][1])
         current_time = start_time
 
-        while(current_time < end_time):
+        while(current_time < end_time and len(frames_start) < max_frames):
             frames_start.append(current_time)
             frames_end.append(current_time + frame_length)
             current_time += frame_shift
@@ -161,5 +162,5 @@ class Phonemes(object):
                     
                     phonemes_per_frame[i][j].append(percentage_phoneme_middle)
 
-        return phonemes_per_frame
+        return phonemes_per_frame, len(frames_start)
         
