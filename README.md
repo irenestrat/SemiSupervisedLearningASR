@@ -3,9 +3,10 @@
 Here I'll be pushing my staff. Please don't merge with main.
 Experiments on semi-supervised learning for automatic speech recognition.
 
-Architectures:
-- GEOLSTM (Georgios LSTM with 50hidden nodes and momentum)
-- GEOBILSTM (Georgios bi-directional LSTM with 50hidden nodes and momentum)
+Architectures (to be experimented):
+- LSTM
+- Bi-directional LSTM
+- Deep LSTM
 
 Dataset:
 - TIMIT
