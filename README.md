@@ -2,7 +2,7 @@
 
 Experiments on semi-supervised learning for automatic speech recognition.
 
-Architectures:
+Architecture:
 - LSTM
 
 Dataset:
